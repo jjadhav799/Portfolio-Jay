@@ -28,17 +28,36 @@
 </nav>
 
 <header id="top" class="hero">
+  <button id="skip-drive" class="skip-drive">Skip the drive, jump to content ↓</button>
+
   <canvas id="hero-canvas"></canvas>
-  <div class="hero-copy">
+  <div id="hero-labels" aria-hidden="true"></div>
+
+  <div class="hero-copy" id="hero-copy">
     <p class="hero-kicker">DevOps &amp; Cloud Engineer, Bangalore</p>
     <h1 class="hero-title">Jayesh<br>Jadhav</h1>
-    <p class="hero-sub">I keep infrastructure honest — provisioning it, shipping through it,<br class="br-desktop"> and watching what it does once it's live.</p>
+    <p class="hero-sub">Drive around, or just scroll — either way you'll end up in the same place.</p>
     <div class="hero-scroll">
       <span></span>
       <p>scroll</p>
     </div>
   </div>
-  <p class="hero-hint">drag to look around</p>
+
+  <p class="hero-hint">WASD / arrows to drive</p>
+
+  <div class="zone-prompt" id="zone-prompt" hidden>
+    <p>Press <kbd>E</kbd> to open <span id="zone-prompt-label"></span></p>
+    <button id="zone-prompt-btn" type="button">Open</button>
+  </div>
+
+  <div class="touch-controls" id="touch-controls" aria-hidden="true">
+    <div class="touch-pad">
+      <button data-key="up" aria-label="Accelerate">▲</button>
+      <button data-key="left" aria-label="Steer left">◀</button>
+      <button data-key="right" aria-label="Steer right">▶</button>
+      <button data-key="down" aria-label="Brake / reverse">▼</button>
+    </div>
+  </div>
 </header>
 
 <main>

@@ -1,7 +1,9 @@
 # Jayesh Jadhav — Portfolio
 
 Personal portfolio for Jayesh Jadhav, DevOps & Cloud Engineer in Bangalore.
-Static site (no build step): plain HTML/CSS/JS plus [Three.js](https://threejs.org/) (loaded from CDN) for the hero's floating infrastructure-graph scene.
+Static site (no build step): plain HTML/CSS/JS plus [Three.js](https://threejs.org/) (loaded from CDN).
+
+The hero is a small drivable scene — an original low-poly car and world (no external models or assets), inspired by the "explore instead of scroll" feel of sites like bruno-simon.com. Drive up to one of the five floating markers and press `E` (or tap **Open** on mobile) to jump straight to that section. There's also a "Skip the drive" button for anyone who'd rather just scroll — all the content is in normal, accessible HTML below the hero either way.
 
 ## Run locally
 

@@ -1,91 +1,240 @@
 import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
 /* =========================================================
-   Hero: a small "infrastructure graph" floating in space —
-   nodes + edges, the same shape as the dependency graphs
-   AECHO reasons about. Drag to look around, auto-drifts on its own.
+   Hero: a small drivable world. A low-poly car on an island,
+   five floating markers ringing the edge — one per section.
+   Drive up to a marker and press E (or tap Open) to jump there.
+   Everything here is primitive geometry — no external models.
 ========================================================= */
 (function heroScene(){
   const canvas = document.getElementById('hero-canvas');
+  const labelHost = document.getElementById('hero-labels');
+  const heroCopy = document.getElementById('hero-copy');
+  const skipBtn = document.getElementById('skip-drive');
+  const zonePrompt = document.getElementById('zone-prompt');
+  const zonePromptLabel = document.getElementById('zone-prompt-label');
+  const zonePromptBtn = document.getElementById('zone-prompt-btn');
+  const touchControls = document.getElementById('touch-controls');
   if(!canvas) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  if(isCoarsePointer && touchControls) touchControls.hidden = false;
+
+  const MARKERS = [
+    { id: 'about',   label: 'About',    color: 0xe8ecef },
+    { id: 'stack',   label: 'Stack',    color: 0x4fd1c5 },
+    { id: 'work',    label: 'Work',     color: 0xff7a33 },
+    { id: 'build',   label: 'AECHO',    color: 0x4fd1c5 },
+    { id: 'contact', label: 'Contact',  color: 0xff7a33 },
+  ];
+  const WORLD_RADIUS = 40;
+  const MARKER_RADIUS = 24;
+  const PROXIMITY = 6.5;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-  camera.position.set(0, 0, 9);
+  scene.fog = new THREE.Fog(0x0d1117, 30, 70);
+
+  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 200);
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  const group = new THREE.Group();
-  scene.add(group);
+  // Lighting: one soft key light, one cool fill
+  scene.add(new THREE.HemisphereLight(0x2a3542, 0x0d1117, 1.1));
+  const key = new THREE.DirectionalLight(0xffffff, 0.6);
+  key.position.set(12, 18, 8);
+  scene.add(key);
 
-  const COLORS = [0xff7a33, 0x4fd1c5, 0xe8ecef];
+  // Ground island
+  const ground = new THREE.Mesh(
+    new THREE.CircleGeometry(WORLD_RADIUS + 3, 48),
+    new THREE.MeshStandardMaterial({ color: 0x121820, roughness: 1 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  scene.add(ground);
 
-  // Node positions: scattered in a loose sphere
-  const NODE_COUNT = 22;
-  const nodes = [];
-  for(let i = 0; i < NODE_COUNT; i++){
-    const phi = Math.acos(-1 + (2 * i) / NODE_COUNT);
-    const theta = Math.sqrt(NODE_COUNT * Math.PI) * phi;
-    const r = 3.6 + Math.random() * 1.2;
-    const pos = new THREE.Vector3(
-      r * Math.cos(theta) * Math.sin(phi),
-      r * Math.sin(theta) * Math.sin(phi) * 0.7,
-      r * Math.cos(phi)
-    );
-    nodes.push(pos);
+  const grid = new THREE.GridHelper(WORLD_RADIUS * 2, 40, 0x2a3542, 0x1a222c);
+  grid.position.y = 0.01;
+  scene.add(grid);
 
-    const size = 0.05 + Math.random() * 0.05;
-    const color = COLORS[i % COLORS.length];
-    const geo = new THREE.IcosahedronGeometry(size, 0);
-    const mat = new THREE.MeshBasicMaterial({ color, wireframe: Math.random() > 0.5 });
+  // Car: primitive shapes only
+  const car = new THREE.Group();
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0xff7a33, roughness: 0.4, metalness: 0.1 });
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.5, 2.6), bodyMat);
+  body.position.y = 0.55;
+  car.add(body);
+  const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.5, 1.3), new THREE.MeshStandardMaterial({ color: 0xe8ecef, roughness: 0.5 }));
+  cabin.position.set(0, 1.02, -0.1);
+  car.add(cabin);
+  const wheelGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.3, 14);
+  const wheelMat = new THREE.MeshStandardMaterial({ color: 0x0d1117, roughness: 0.9 });
+  const wheelPositions = [[-0.85, 0.32, 0.9], [0.85, 0.32, 0.9], [-0.85, 0.32, -0.9], [0.85, 0.32, -0.9]];
+  wheelPositions.forEach(([x, y, z]) => {
+    const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+    wheel.rotation.z = Math.PI / 2;
+    wheel.position.set(x, y, z);
+    car.add(wheel);
+  });
+  car.position.set(0, 0, 14);
+  scene.add(car);
+
+  // Markers: one floating shape per section, arranged in a ring
+  const markerMeshes = MARKERS.map((m, i) => {
+    const angle = (i / MARKERS.length) * Math.PI * 2;
+    const x = Math.sin(angle) * MARKER_RADIUS;
+    const z = Math.cos(angle) * MARKER_RADIUS;
+    const geo = new THREE.IcosahedronGeometry(1.1, 0);
+    const mat = new THREE.MeshStandardMaterial({ color: m.color, wireframe: true });
     const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.copy(pos);
-    group.add(mesh);
+    mesh.position.set(x, 2.2, z);
+    mesh.userData.phase = Math.random() * Math.PI * 2;
+    mesh.userData.baseY = 2.2;
+    scene.add(mesh);
+
+    const div = document.createElement('div');
+    div.className = 'hero-label';
+    div.textContent = m.label;
+    labelHost.appendChild(div);
+
+    return { def: m, mesh, div, x, z };
+  });
+
+  // Controls: keyboard + touch share the same key state
+  const keys = { up: false, down: false, left: false, right: false };
+  const KEY_MAP = {
+    ArrowUp: 'up', KeyW: 'up',
+    ArrowDown: 'down', KeyS: 'down',
+    ArrowLeft: 'left', KeyA: 'left',
+    ArrowRight: 'right', KeyD: 'right',
+  };
+  let hasMoved = false;
+  function markMoved(){
+    if(hasMoved) return;
+    hasMoved = true;
+    heroCopy?.classList.add('faded');
   }
 
-  // Edges: connect each node to its nearest couple of neighbours
-  const lineMat = new THREE.LineBasicMaterial({ color: 0x2a3542, transparent: true, opacity: 0.6 });
-  nodes.forEach((p, i) => {
-    const distances = nodes
-      .map((q, j) => ({ j, d: i === j ? Infinity : p.distanceTo(q) }))
-      .sort((a, b) => a.d - b.d)
-      .slice(0, 2);
-    distances.forEach(({ j }) => {
-      const geo = new THREE.BufferGeometry().setFromPoints([p, nodes[j]]);
-      group.add(new THREE.Line(geo, lineMat));
+  window.addEventListener('keydown', (e) => {
+    if(KEY_MAP[e.code]){ keys[KEY_MAP[e.code]] = true; markMoved(); }
+    if(e.code === 'KeyE' && currentZone) scrollToSection(currentZone);
+  });
+  window.addEventListener('keyup', (e) => {
+    if(KEY_MAP[e.code]) keys[KEY_MAP[e.code]] = false;
+  });
+
+  if(touchControls){
+    touchControls.querySelectorAll('button[data-key]').forEach((btn) => {
+      const k = btn.dataset.key;
+      const on = (e) => { e.preventDefault(); keys[k] = true; markMoved(); };
+      const off = (e) => { e.preventDefault(); keys[k] = false; };
+      btn.addEventListener('pointerdown', on);
+      btn.addEventListener('pointerup', off);
+      btn.addEventListener('pointerleave', off);
+      btn.addEventListener('pointercancel', off);
     });
-  });
+  }
 
-  // Pointer interaction: drag to rotate, gentle auto-drift otherwise
-  let dragging = false;
-  let lastX = 0, lastY = 0;
-  let velX = 0.0009, velY = 0.0003;
-  let targetVelX = velX, targetVelY = velY;
-  let parallaxX = 0, parallaxY = 0;
+  function scrollToSection(id){
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  }
+  skipBtn?.addEventListener('click', () => scrollToSection('about'));
+  zonePromptBtn?.addEventListener('click', () => { if(currentZone) scrollToSection(currentZone); });
 
-  canvas.addEventListener('pointerdown', (e) => {
-    dragging = true;
-    lastX = e.clientX; lastY = e.clientY;
-  });
-  window.addEventListener('pointerup', () => { dragging = false; });
-  window.addEventListener('pointermove', (e) => {
-    if(dragging){
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
-      group.rotation.y += dx * 0.004;
-      group.rotation.x += dy * 0.004;
-      lastX = e.clientX; lastY = e.clientY;
-    } else {
-      const nx = (e.clientX / window.innerWidth) - 0.5;
-      const ny = (e.clientY / window.innerHeight) - 0.5;
-      parallaxX = nx * 0.4;
-      parallaxY = ny * 0.25;
+  // Car physics — simple, framerate-independent kinematic model
+  let speed = 0;
+  let heading = Math.PI; // face toward the ring, away from the camera start
+  const MAX_SPEED = 13;
+  const ACCEL = 20;
+  const BRAKE = 32;
+  const FRICTION = 11;
+  const TURN_SPEED = 2.3;
+  let currentZone = null;
+
+  const cameraTarget = new THREE.Vector3();
+  const desiredCamPos = new THREE.Vector3();
+
+  const clock = new THREE.Clock();
+
+  function updateCar(dt){
+    const forwardInput = (keys.up ? 1 : 0) - (keys.down ? 1 : 0);
+    const turnInput = (keys.left ? 1 : 0) - (keys.right ? 1 : 0);
+
+    if(forwardInput !== 0){
+      speed += forwardInput * ACCEL * dt;
+    } else if(speed !== 0){
+      const drop = FRICTION * dt;
+      speed = Math.abs(speed) <= drop ? 0 : speed - Math.sign(speed) * drop;
     }
-  });
+    speed = Math.max(Math.min(speed, MAX_SPEED), -MAX_SPEED * 0.45);
+
+    if(turnInput !== 0 && speed !== 0){
+      const turnAmount = turnInput * TURN_SPEED * dt * Math.min(Math.abs(speed) / (MAX_SPEED * 0.4), 1) * Math.sign(speed);
+      heading += turnAmount;
+    }
+    car.rotation.y = heading;
+
+    const forward = new THREE.Vector3(Math.sin(heading), 0, Math.cos(heading));
+    car.position.addScaledVector(forward, speed * dt);
+
+    const distFromCenter = Math.hypot(car.position.x, car.position.z);
+    if(distFromCenter > WORLD_RADIUS){
+      const scale = WORLD_RADIUS / distFromCenter;
+      car.position.x *= scale;
+      car.position.z *= scale;
+      speed *= 0.6;
+    }
+
+    // wheel spin for a sense of motion
+    car.children.forEach((child) => {
+      if(child.geometry?.type === 'CylinderGeometry') child.rotation.x -= speed * dt * 1.4;
+    });
+  }
+
+  function updateCamera(dt){
+    const forward = new THREE.Vector3(Math.sin(heading), 0, Math.cos(heading));
+    desiredCamPos.copy(car.position)
+      .addScaledVector(forward, -9)
+      .add(new THREE.Vector3(0, 4.6, 0));
+    const t = 1 - Math.pow(0.001, dt);
+    camera.position.lerp(desiredCamPos, t);
+    cameraTarget.copy(car.position).add(new THREE.Vector3(0, 1.1, 0));
+    camera.lookAt(cameraTarget);
+  }
+
+  function updateMarkersAndLabels(time){
+    let nearestId = null;
+    let nearestDist = Infinity;
+
+    markerMeshes.forEach(({ def, mesh, div }) => {
+      mesh.position.y = mesh.userData.baseY + Math.sin(time * 0.0012 + mesh.userData.phase) * 0.4;
+      mesh.rotation.y += 0.006;
+
+      const ndc = mesh.position.clone().project(camera);
+      const behind = ndc.z > 1;
+      div.style.left = `${(ndc.x * 0.5 + 0.5) * window.innerWidth}px`;
+      div.style.top = `${(-ndc.y * 0.5 + 0.5) * window.innerHeight}px`;
+      div.style.opacity = behind ? '0' : '1';
+
+      const dist = Math.hypot(car.position.x - mesh.position.x, car.position.z - mesh.position.z);
+      if(dist < PROXIMITY && dist < nearestDist){
+        nearestDist = dist;
+        nearestId = def.id;
+      }
+    });
+
+    if(nearestId !== currentZone){
+      currentZone = nearestId;
+      if(currentZone && zonePrompt && zonePromptLabel){
+        const def = MARKERS.find((m) => m.id === currentZone);
+        zonePromptLabel.textContent = def.label;
+        zonePrompt.hidden = false;
+      } else if(zonePrompt){
+        zonePrompt.hidden = true;
+      }
+    }
+  }
 
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -93,18 +242,20 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
+  camera.position.set(0, 4.6, 23);
+  camera.lookAt(0, 1, 14);
+
   function animate(){
     requestAnimationFrame(animate);
-    if(!dragging && !reduceMotion){
-      group.rotation.y += targetVelX;
-      group.rotation.x += targetVelY * Math.sin(Date.now() * 0.0002);
-    }
-    camera.position.x += (parallaxX - camera.position.x) * 0.02;
-    camera.position.y += (-parallaxY - camera.position.y) * 0.02;
-    camera.lookAt(0, 0, 0);
+    const dt = Math.min(clock.getDelta(), 0.05);
+    updateCar(dt);
+    updateCamera(dt);
+    updateMarkersAndLabels(performance.now());
     renderer.render(scene, camera);
   }
+
   if(reduceMotion){
+    updateMarkersAndLabels(0);
     renderer.render(scene, camera);
   } else {
     animate();

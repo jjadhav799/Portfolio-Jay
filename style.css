@@ -140,6 +140,66 @@ a:focus-visible, button:focus-visible{
   .hero-hint{ display: none; }
 }
 
+.hero-copy{ transition: opacity .6s ease; }
+.hero-copy.faded{ opacity: 0.22; }
+
+.skip-drive{
+  position: absolute; z-index: 5; top: 92px; right: clamp(20px, 5vw, 56px);
+  font-family: var(--mono); font-size: 12px; color: var(--text-muted);
+  background: rgba(13,17,23,0.6); border: 1px solid var(--line);
+  padding: 8px 14px; border-radius: 20px; cursor: pointer;
+  transition: color .2s ease, border-color .2s ease;
+}
+.skip-drive:hover{ color: var(--text); border-color: var(--amber); }
+
+#hero-labels{
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+}
+.hero-label{
+  position: absolute; transform: translate(-50%, -50%);
+  font-family: var(--mono); font-size: 12px; white-space: nowrap;
+  padding: 4px 10px; border-radius: 12px;
+  background: rgba(13,17,23,0.55); border: 1px solid var(--line);
+  transition: opacity .15s ease;
+}
+
+.zone-prompt{
+  position: absolute; z-index: 5; left: 50%; bottom: clamp(120px,18vh,180px);
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(13,17,23,0.75); border: 1px solid var(--line);
+  padding: 10px 12px 10px 18px; border-radius: 24px;
+  font-size: 14px; color: var(--text-muted);
+}
+.zone-prompt kbd{
+  font-family: var(--mono); background: var(--bg-raised); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 6px; color: var(--text);
+}
+.zone-prompt button{
+  font-family: var(--body); font-weight: 500; font-size: 13px;
+  background: var(--amber); color: var(--bg); border: none;
+  padding: 7px 16px; border-radius: 16px; cursor: pointer;
+}
+
+.touch-controls{ display: none; }
+@media (max-width: 720px){
+  .touch-controls{
+    display: flex; justify-content: space-between; align-items: flex-end;
+    position: absolute; z-index: 5; left: 20px; right: 20px; bottom: 28px;
+  }
+  .touch-pad{
+    display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(2, 48px);
+    gap: 6px;
+  }
+  .touch-pad button{
+    grid-column: 2; background: rgba(20,27,35,0.75); border: 1px solid var(--line);
+    color: var(--text); font-size: 16px; border-radius: 10px;
+  }
+  .touch-pad button[data-key="left"]{ grid-column: 1; grid-row: 2; }
+  .touch-pad button[data-key="right"]{ grid-column: 3; grid-row: 2; }
+  .touch-pad button[data-key="down"]{ grid-row: 2; }
+}
+
 /* ---------- sections ---------- */
 .section{
   padding: 120px clamp(20px, 5vw, 56px);
