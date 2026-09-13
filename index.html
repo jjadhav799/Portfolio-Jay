@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jayesh Jadhav — DevOps &amp; Cloud Engineer</title>
+<meta name="description" content="Jayesh Jadhav, DevOps &amp; Cloud Engineer in Bangalore. AWS, Kubernetes, Terraform, CI/CD — and builder of AECHO, an AI infrastructure operating system.">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="grain"></div>
+
+<nav id="nav">
+  <a href="#top" class="nav-mark">JJ</a>
+  <ul class="nav-links">
+    <li><a href="#about" data-section="about">About</a></li>
+    <li><a href="#stack" data-section="stack">Stack</a></li>
+    <li><a href="#work" data-section="work">Work</a></li>
+    <li><a href="#build" data-section="build">Building</a></li>
+    <li><a href="#contact" data-section="contact">Contact</a></li>
+  </ul>
+  <a href="mailto:work.jayeshjadhav@gmail.com" class="nav-cta">Say hello</a>
+</nav>
+
+<header id="top" class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-copy">
+    <p class="hero-kicker">DevOps &amp; Cloud Engineer, Bangalore</p>
+    <h1 class="hero-title">Jayesh<br>Jadhav</h1>
+    <p class="hero-sub">I keep infrastructure honest — provisioning it, shipping through it,<br class="br-desktop"> and watching what it does once it's live.</p>
+    <div class="hero-scroll">
+      <span></span>
+      <p>scroll</p>
+    </div>
+  </div>
+  <p class="hero-hint">drag to look around</p>
+</header>
+
+<main>
+
+  <section id="about" class="section about">
+    <div class="section-grid">
+      <div class="about-text">
+        <h2>A year into DevOps, and already living in the layer between code and the servers that run it.</h2>
+        <p>I'm an Associate Engineer on the DevOps &amp; Cloud team at <strong>Consilio</strong>, based in Bangalore. Most days I'm somewhere between a Jenkins pipeline, an EKS cluster, and a Terraform plan — making sure what a developer pushes is what actually ends up running.</p>
+        <p>Outside of my day job I build <a href="#build">AECHO</a>, an infrastructure intelligence project, and I teach IT career fundamentals in Marathi to <a href="https://www.instagram.com/jaymarathicareer/" target="_blank" rel="noopener">an audience back home</a>.</p>
+      </div>
+      <dl class="about-facts">
+        <div><dt>Based in</dt><dd>Bangalore, India</dd></div>
+        <div><dt>Currently</dt><dd>Associate Engineer, Consilio</dd></div>
+        <div><dt>Focus</dt><dd>Cloud infra, CI/CD, automation</dd></div>
+        <div><dt>Also building</dt><dd>AECHO — AI infra OS</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="stack" class="section stack">
+    <h2>What I reach for</h2>
+    <p class="section-lede">The tools I use to get a change from a developer's laptop into something running safely in production.</p>
+
+    <div class="stack-grid">
+      <div class="stack-group">
+        <h3>Cloud</h3>
+        <ul>
+          <li>AWS — EC2, ECS, EKS, IAM, Load Balancers</li>
+          <li>Azure fundamentals</li>
+        </ul>
+      </div>
+      <div class="stack-group">
+        <h3>Containers &amp; orchestration</h3>
+        <ul>
+          <li>Docker</li>
+          <li>Kubernetes</li>
+        </ul>
+      </div>
+      <div class="stack-group">
+        <h3>Delivery</h3>
+        <ul>
+          <li>Jenkins</li>
+          <li>GitHub Actions</li>
+        </ul>
+      </div>
+      <div class="stack-group">
+        <h3>Infrastructure as code</h3>
+        <ul>
+          <li>Terraform</li>
+          <li>Bash scripting</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="work" class="section work">
+    <h2>Where I've been building</h2>
+    <div class="work-row">
+      <div class="work-when">
+        <span class="work-dot"></span>
+        <p>2025 — Present</p>
+      </div>
+      <div class="work-what">
+        <h3>Associate Engineer, DevOps &amp; Cloud</h3>
+        <p class="work-org">Consilio India Private Limited · Bangalore</p>
+        <p>Working across the deployment pipeline — provisioning and managing AWS infrastructure, building and maintaining Jenkins pipelines, containerizing services with Docker, and running workloads on Kubernetes. Terraform and Bash tie the rest together.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="build" class="section build">
+    <div class="build-intro">
+      <h2>Building AECHO</h2>
+      <p class="section-lede">An AI infrastructure operating system — one control plane to deploy, validate, operate, and optimize infrastructure across cloud, Kubernetes, GPUs, and MLOps.</p>
+    </div>
+    <div class="build-card">
+      <div class="build-card-text">
+        <p>The problem I kept running into: every layer of AI infrastructure — cloud, Kubernetes, GPUs, observability, cost — is its own tool with its own mental model, and the failures live in the gaps between them. AECHO is my attempt at a shared understanding layer: it reasons across the dependency graph instead of showing another disconnected dashboard.</p>
+        <p class="build-status">Early-stage, in active development.</p>
+        <a class="build-link" href="https://www.aecho.in/" target="_blank" rel="noopener">aecho.in →</a>
+      </div>
+      <div class="build-card-graph" id="build-graph" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section id="creator" class="section creator">
+    <div class="section-grid">
+      <div>
+        <h2>Teaching what I wish someone had told me</h2>
+        <p>Alongside engineering, I run <strong>JayMarathi Career</strong> on Instagram — IT career guidance in Marathi, for people navigating the same questions I had when I was starting out: what to learn, how to break in, what actually matters on the job.</p>
+      </div>
+      <a href="https://www.instagram.com/jaymarathicareer/" target="_blank" rel="noopener" class="creator-link">
+        <span>@jaymarathicareer</span>
+        <span class="creator-link-sub">Instagram →</span>
+      </a>
+    </div>
+  </section>
+
+  <section id="contact" class="section contact">
+    <h2>Say hello</h2>
+    <p class="section-lede">Open to DevOps and Cloud Engineering roles, and happy to talk infrastructure, AECHO, or the Marathi IT career content.</p>
+    <div class="contact-links">
+      <a href="mailto:work.jayeshjadhav@gmail.com">work.jayeshjadhav@gmail.com</a>
+      <a href="https://github.com/jjadhav799" target="_blank" rel="noopener">github.com/jjadhav799</a>
+      <a href="https://www.linkedin.com/in/jjadhav799" target="_blank" rel="noopener">linkedin.com/in/jjadhav799</a>
+      <a href="https://www.instagram.com/jaymarathicareer/" target="_blank" rel="noopener">@jaymarathicareer</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>Jayesh Jadhav — Bangalore, India</p>
+  <p class="footer-time" id="local-time"></p>
+</footer>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
